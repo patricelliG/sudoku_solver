@@ -56,7 +56,34 @@ def printBoard(board: Array[Array[Char]]) {
   }
 }
 
+// Function that returns a square, given a grid and square number
+//def getSquare(grid: Array[Array[Char]], squareNum: Int) : Array[Array[Char]] = { 
+//}
+
+// Function that checks if 'char' is present in the row
+def checkRow(grid: Array[Array[Char]], rowNum: Int, checkChar: Char) : Boolean = {
+  var colIndex = 0
+  while (colIndex < grid.length) { 
+    if (grid(rowNum)(colIndex) == checkChar) { 
+      return false
+    }
+    colIndex = colIndex + 1
+  }
+  return true
+}
+
+// Function that checks if 'char' is present in the column 
+def checkCol(grid: Array[Array[Char]], colNum: Int, checkChar: Char) : Boolean = {
+  var rowIndex = 0
+  while (rowIndex < grid.length) {
+    if (grid(rowIndex)(colNum) == checkChar) {
+      return false
+    }
+    rowIndex = rowIndex + 1
+  }
+  return true 
+}
 
 
-printBoard(initBoard("input1.txt"))
+// printBoard(initBoard("input1.txt"))
 
