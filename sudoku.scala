@@ -1,94 +1,70 @@
 import Array._
 import scala.io.Source
 
+var rows = ofDim[Char](0,0) // The contents of all rows 
+var cols = ofDim[Char](0,0) // The contents of all columns
+var sqrs = ofDim[Char](0,0) // The contents of all squares
 
-// Function to initialize sodoku from file
-def initBoard(filename: String) : Array[Array[Char]] = {
-  
+def initGrid(filename: String) {
   // Open file
+
   var lineNum = 0
-  var board = ofDim[Char](0,0)
   for (line <- Source.fromFile(filename).getLines()) {
-      // Init board if first line 
-      if (lineNum == 0) {
-        board = ofDim[Char](line.length, line.length)
-        println("Initializing Board...")
-      }
-      //Parse this line of the file
-      parseInput(lineNum, line, board) 
+    if (lineNum == 0) {
+      // Get size of grid to init rows, cols, sqrs 
+      val gridSize = line.length
+      println("Initializing Arrays...")
+      rows = ofDim[Char](gridSize, gridSize)
+      cols = ofDim[Char](gridSize, gridSize)
+      sqrs = ofDim[Char](gridSize, gridSize)
+    }
+    // Save this line to the corresponding row 
+    rows(lineNum) = line.toCharArray
 
-      lineNum = lineNum + 1
+    // Save this line to the top of each column
+    for (colIndex <- 0 to line.length - 1) {
+      cols(colIndex)(lineNum) = line.charAt(colIndex)
     }
-    return board
-}
-
-// Function to parse a single line from a file into the board
-def parseInput(lineNum: Int, line: String,  board: Array[Array[Char]]){
-  var index = 0
-  while (index < line.length) {
-    if (line.charAt(index) == '.') {
-      // This is a blank space, we denote it with an 'x'  
-      board(lineNum)(index) = 'x' 
-    }
-    else {
-      board(lineNum)(index) = (line.charAt(index))
-    }
-    index = index + 1
+    lineNum = lineNum + 1
   }
+  // Now to initialize the squares
+      
+
 }
 
-// Function to print board to standard out
-def printBoard(board: Array[Array[Char]]) {
-  var rowIndex = 0
-  while (rowIndex < board.length) {
-    var columnIndex = 0
-    while (columnIndex < board.length) {
-      if (board(rowIndex)(columnIndex) == 'x'){
-        print(" ")
-      }
-      else {
-        print(board(rowIndex)(columnIndex))
-      }
-      columnIndex = columnIndex + 1
+def printGrid() {
+  //for (row <- rows) println() for (char <- row) print(char)
+  for (row <- rows) { 
+    for (char <- row) {
+      print(char)
     }
     println()
-    rowIndex = rowIndex + 1
   }
 }
 
-// Function that returns a square, given a grid and square number
-def getSquare(grid: Array[Array[Char]], squareNum: Int) : Array[Array[Char]] = { 
-
-  // Calculate the bounds of the square
-  val startRow = (grid.length / 3) * squareNum
-  val startCol = (grid.length / 3) * squareNum
-}
-
-// Function that checks for a char in a given square
-def checkSquare(grid: Array[Array[Charr]], squareNum: Int, checkChar: Char) : Boolean = {
-  return false
-}
-
-// Function that checks if 'char' is present in the row
-def checkRow(grid: Array[Array[Char]], rowNum: Int, checkChar: Char) : Boolean = {
-  var colIndex = 0
-  while (colIndex < grid.length) { 
-    if (grid(rowNum)(colIndex) == checkChar) { 
-      return false
-    }
-    colIndex = colIndex + 1
-  }
-  return true
-}
-
-// Function that checks if 'char' is present in the column 
-def checkCol(grid: Array[Array[Char]], colNum: Int, checkChar: Char) : Boolean = {
-  if (grid(colNum).contains(checkChar))
-    return false
+def isValid(sqrNum: Int, sqrPos: Int, char: Char) : Boolean = {
+  // Get row and column position
+  val (row, col) = sqrPosToRowCol(sqrNum, sqrPos)
+  if (rows(row).contains(char) || cols(col).contains(char) || sqrs(sqrNum).contains(char))
+    false
   else
-    return true
+    true
+}
+
+// This function takes a sqaure number and position
+// It returns the coresponding row and column for that position
+def sqrPosToRowCol(sqrNum: Int, sqrPos: Int) : (Int, Int)  = {
+  // Maps of row and column positions in a 3 x 3 square
+  val rowOffset = Map(0 -> 0, 1 -> 0, 2 -> 0, 3 -> 1, 4 -> 1, 5 -> 1, 6 -> 2, 7 -> 2, 8 -> 2)
+  val colOffset = Map(0 -> 0, 1 -> 1, 2 -> 2, 3 -> 0, 4 -> 1, 5 -> 2, 6 -> 0, 7 -> 1, 8 -> 2)
+
+  val row = (((sqrNum/3).toInt) * 3) + rowOffset(sqrPos)
+  val col = ((sqrNum % 3) * 3) + colOffset(sqrPos)
+  return (row, col) 
 }
 
 
-// printBoard(initBoard("input1.txt"))
-
+//println(sqrPosToRowCol(3, 5))
+initGrid("input1.txt")
+//println(cols(8)(8))
+printGrid()
