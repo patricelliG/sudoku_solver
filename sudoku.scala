@@ -27,7 +27,7 @@ def parseInput(lineNum: Int, line: String,  board: Array[Array[Char]]){
   var index = 0
   while (index < line.length) {
     if (line.charAt(index) == '.') {
-      // This is a blank space, we denote it with -1
+      // This is a blank space, we denote it with an 'x'  
       board(lineNum)(index) = 'x' 
     }
     else {
@@ -57,8 +57,17 @@ def printBoard(board: Array[Array[Char]]) {
 }
 
 // Function that returns a square, given a grid and square number
-//def getSquare(grid: Array[Array[Char]], squareNum: Int) : Array[Array[Char]] = { 
-//}
+def getSquare(grid: Array[Array[Char]], squareNum: Int) : Array[Array[Char]] = { 
+
+  // Calculate the bounds of the square
+  val startRow = (grid.length / 3) * squareNum
+  val startCol = (grid.length / 3) * squareNum
+}
+
+// Function that checks for a char in a given square
+def checkSquare(grid: Array[Array[Charr]], squareNum: Int, checkChar: Char) : Boolean = {
+  return false
+}
 
 // Function that checks if 'char' is present in the row
 def checkRow(grid: Array[Array[Char]], rowNum: Int, checkChar: Char) : Boolean = {
@@ -74,14 +83,10 @@ def checkRow(grid: Array[Array[Char]], rowNum: Int, checkChar: Char) : Boolean =
 
 // Function that checks if 'char' is present in the column 
 def checkCol(grid: Array[Array[Char]], colNum: Int, checkChar: Char) : Boolean = {
-  var rowIndex = 0
-  while (rowIndex < grid.length) {
-    if (grid(rowIndex)(colNum) == checkChar) {
-      return false
-    }
-    rowIndex = rowIndex + 1
-  }
-  return true 
+  if (grid(colNum).contains(checkChar))
+    return false
+  else
+    return true
 }
 
 
