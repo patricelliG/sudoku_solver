@@ -28,6 +28,14 @@ def initGrid(filename: String) {
     lineNum = lineNum + 1
   }
   // Now to initialize the squares
+  // This must be done iteratively as the index of the elements must be known
+  for (square <- 0 to 8) {
+    for (position <- 0 to 8) {
+      val (row, col) = sqrPosToRowCol(square, position)
+      sqrs(square)(position) = rows(row)(col) 
+    }
+  }
+  
       
 
 }
@@ -64,7 +72,4 @@ def sqrPosToRowCol(sqrNum: Int, sqrPos: Int) : (Int, Int)  = {
 }
 
 
-//println(sqrPosToRowCol(3, 5))
 initGrid("input1.txt")
-//println(cols(8)(8))
-printGrid()
