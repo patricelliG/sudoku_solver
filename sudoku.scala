@@ -7,7 +7,6 @@ var sqrs = ofDim[Char](0,0) // The contents of all squares
 
 def initGrid(filename: String) {
   // Open file
-
   var lineNum = 0
   for (line <- Source.fromFile(filename).getLines()) {
     if (lineNum == 0) {
@@ -20,7 +19,6 @@ def initGrid(filename: String) {
     }
     // Save this line to the corresponding row 
     rows(lineNum) = line.toCharArray
-
     // Save this line to the top of each column
     for (colIndex <- 0 to line.length - 1) {
       cols(colIndex)(lineNum) = line.charAt(colIndex)
@@ -35,9 +33,6 @@ def initGrid(filename: String) {
       sqrs(square)(position) = rows(row)(col) 
     }
   }
-  
-      
-
 }
 
 def printGrid() {
@@ -50,6 +45,8 @@ def printGrid() {
   }
 }
 
+// Given a square, a position in the square and a character,
+// this method will check its valiity against all rules
 def isValid(sqrNum: Int, sqrPos: Int, char: Char) : Boolean = {
   // Get row and column position
   val (row, col) = sqrPosToRowCol(sqrNum, sqrPos)
@@ -59,17 +56,29 @@ def isValid(sqrNum: Int, sqrPos: Int, char: Char) : Boolean = {
     true
 }
 
-// This function takes a sqaure number and position
+// This function takes a square number and position
 // It returns the coresponding row and column for that position
 def sqrPosToRowCol(sqrNum: Int, sqrPos: Int) : (Int, Int)  = {
   // Maps of row and column positions in a 3 x 3 square
   val rowOffset = Map(0 -> 0, 1 -> 0, 2 -> 0, 3 -> 1, 4 -> 1, 5 -> 1, 6 -> 2, 7 -> 2, 8 -> 2)
   val colOffset = Map(0 -> 0, 1 -> 1, 2 -> 2, 3 -> 0, 4 -> 1, 5 -> 2, 6 -> 0, 7 -> 1, 8 -> 2)
-
   val row = (((sqrNum/3).toInt) * 3) + rowOffset(sqrPos)
   val col = ((sqrNum % 3) * 3) + colOffset(sqrPos)
   return (row, col) 
 }
 
+// This function returns the indices of open spaces in a square
+def getBlankIndeces (sqrNum: Int, startPos: Int, indeces: List[Int]) : List[Int] = {
+  println("start position: " + startPos)
+  val index = sqrs(sqrNum).indexWhere(_ == '.', startPos)
+  if (startPos >= sqrs.length || index == -1) {
+    return indeces
+  }
+  else {
+    getBlankIndeces (sqrNum, index + 1, indeces :+ index)
+  }
+}
 
+  
 initGrid("input1.txt")
+println(getBlankIndeces(0, 0, List[Int]()))
