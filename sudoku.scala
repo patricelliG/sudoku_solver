@@ -1,9 +1,17 @@
+/* Vocabulary:
+*     Grid: the entire sudoku board 
+*     Square: one of the 9 partitioned sections of the grid 
+*     Square Position: Each square has 9 cells, 0 - 8
+*                       
+*/
+
 import Array._
 import scala.io.Source
 
 var rows = ofDim[Char](0,0) // The contents of all rows 
 var cols = ofDim[Char](0,0) // The contents of all columns
 var sqrs = ofDim[Char](0,0) // The contents of all squares
+val charSet = List[Char]( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
 
 def initGrid(filename: String) {
   // Open file
@@ -67,18 +75,53 @@ def sqrPosToRowCol(sqrNum: Int, sqrPos: Int) : (Int, Int)  = {
   return (row, col) 
 }
 
-// This function returns the indices of open spaces in a square
-def getBlankIndeces (sqrNum: Int, startPos: Int, indeces: List[Int]) : List[Int] = {
-  println("start position: " + startPos)
+// This function takes a square, starting position, and list
+// It returns the indices of the remaining blanks of a square
+def getBlankSpaces (sqrNum: Int, startPos: Int, indeces: List[Int]) : List[Int] = {
   val index = sqrs(sqrNum).indexWhere(_ == '.', startPos)
   if (startPos >= sqrs.length || index == -1) {
     return indeces
   }
   else {
-    getBlankIndeces (sqrNum, index + 1, indeces :+ index)
+    getBlankSpaces (sqrNum, index + 1, indeces :+ index)
   }
 }
+ 
+def addToGrid(sqrNum: Int, sqrPos: Int, char: Char) { 
+  // Calculate row and column
+  val (row, col) = sqrPosToRowCol(sqrNum, sqrPos)
+  // Add char to rows array
+  rows(row)(col) = char
+  // Add char to colums array
+  cols(col)(row) = char
+  // Add to squares array
+  sqrs(sqrNum)(sqrPos) = char
+}
 
-  
+// This function calculates the total number of valid placements
+// of the given char in the given square. If there is only one
+// placement, it returns the position of the unique space. If 
+// there is more than one valid placement it returns -1.
+def numValidSpaces(sqrNum: Int, char: Char) : Int = {
+  // Get list of empty spaces in the square    
+  val spaces = getBlankSpaces(sqrNum, 0, List[Int]())
+  // For each space, check if char can be placed
+  var lastPosition = 0
+  var validCount = 0 
+  for (space <- spaces) {
+    if (isValid(sqrNum, space, char)) { 
+      validCount = validCount + 1
+      lastPosition = space
+    }
+  }
+  if (validCount == 1)
+    return lastPosition
+  else
+    return -1
+}
+
+
+
 initGrid("input1.txt")
-println(getBlankIndeces(0, 0, List[Int]()))
+printGrid()
+println(numValidSpaces(0, '9'))
