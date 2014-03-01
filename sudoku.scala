@@ -1,8 +1,8 @@
-/* Vocabulary:
-*     Grid: the entire sudoku board 
-*     Square: one of the 9 partitioned sections of the grid 
-*     Square Position: Each square has 9 cells, 0 - 8
-*                       
+/* 
+* Name: Sudoku_Solver
+* Class: CSC_435
+* Date: 02/28/2014
+* Written By: Gary Patricelli                      
 */
 
 import Array._
@@ -13,37 +13,43 @@ var cols = ofDim[Char](0,0) // The contents of all columns
 var sqrs = ofDim[Char](0,0) // The contents of all squares
 val charSet = List[Char]('1', '2', '3', '4', '5', '6', '7', '8', '9')
 
-def initGrid(filename: String) {
+def initGrid() {
+  // Get file name
+  val fileName = readLine("Enter the file name to read from.\n> ").toString
   // Open file
   var lineNum = 0
-  for (line <- Source.fromFile(filename).getLines()) {
-    if (lineNum == 0) {
-      // Get size of grid to init rows, cols, sqrs 
-      val gridSize = line.length
-      rows = ofDim[Char](gridSize, gridSize)
-      cols = ofDim[Char](gridSize, gridSize)
-      sqrs = ofDim[Char](gridSize, gridSize)
+  try { 
+    for (line <- Source.fromFile(fileName).getLines()) {
+      if (lineNum == 0) {
+        // Get size of grid to init rows, cols, sqrs 
+        val gridSize = line.length
+        rows = ofDim[Char](gridSize, gridSize)
+        cols = ofDim[Char](gridSize, gridSize)
+        sqrs = ofDim[Char](gridSize, gridSize)
+      }
+      // Save this line to the corresponding row 
+      rows(lineNum) = line.toCharArray
+      // Save this line to the top of each column
+      for (colIndex <- 0 to line.length - 1) {
+        cols(colIndex)(lineNum) = line.charAt(colIndex)
+      }
+      lineNum = lineNum + 1
     }
-    // Save this line to the corresponding row 
-    rows(lineNum) = line.toCharArray
-    // Save this line to the top of each column
-    for (colIndex <- 0 to line.length - 1) {
-      cols(colIndex)(lineNum) = line.charAt(colIndex)
+    // Now to initialize the squares
+    // This must be done iteratively as the index of the elements must be known
+    for (square <- 0 to 8) {
+      for (position <- 0 to 8) {
+        val (row, col) = sqrPosToRowCol(square, position)
+        sqrs(square)(position) = rows(row)(col) 
+      }
     }
-    lineNum = lineNum + 1
   }
-  // Now to initialize the squares
-  // This must be done iteratively as the index of the elements must be known
-  for (square <- 0 to 8) {
-    for (position <- 0 to 8) {
-      val (row, col) = sqrPosToRowCol(square, position)
-      sqrs(square)(position) = rows(row)(col) 
-    }
+  catch {
+    case ex: Exception => println("File not found.")
   }
 }
 
 def printGrid() {
-  //for (row <- rows) println() for (char <- row) print(char)
   for (row <- rows) { 
     for (char <- row) {
       print(char)
@@ -87,7 +93,6 @@ def getBlankSpaces (sqrNum: Int, startPos: Int, indeces: List[Int]) : List[Int] 
 }
  
 def addToGrid(sqrNum: Int, sqrPos: Int, char: Char) { 
-//  println("addToGrid")
   // Calculate row and column
   val (row, col) = sqrPosToRowCol(sqrNum, sqrPos)
   rows(row)(col) = char
@@ -100,7 +105,6 @@ def addToGrid(sqrNum: Int, sqrPos: Int, char: Char) {
 // placement, it returns the position of the unique space. If 
 // there is more than one valid placement it returns -1.
 def uniquePlacement(sqrNum: Int, char: Char) : Int = {
-//  println("uniquePlacement")
   // Get list of empty spaces in the square    
   val spaces = getBlankSpaces(sqrNum, 0, List[Int]())
   // For each space, check if char can be placed
@@ -123,7 +127,6 @@ def uniquePlacement(sqrNum: Int, char: Char) : Int = {
 // charset that have only one possible placement
 // in the given square.
 def placeUniqueChars(sqrNum: Int) {
-//  println("placeUniqueChars")
   for (char <- charSet) {
     val sqrPos = uniquePlacement(sqrNum, char)  
     if (sqrPos != -1)
@@ -133,7 +136,6 @@ def placeUniqueChars(sqrNum: Int) {
 
 // Function returns true if puzzle is solved
 def isSolved() : Boolean =  {
-//  println("isSolved")
   for (row <- rows) {
     if (row.contains('.')) { 
       return false
@@ -142,18 +144,24 @@ def isSolved() : Boolean =  {
   return true
 }
 
+// This function will solve the sudoku.
+// In the event an infinate loop is detected
+// the program will exit gracefully.
 def solve() {
-//  println("solve")
-  while (!isSolved()) {
+  var loopCount = 0
+  while (!isSolved() && loopCount < 100) {
     for (square <- 0 to 8){
       placeUniqueChars(square)
     }
+    loopCount = loopCount + 1
   }
+  if (loopCount >= 100)
+    println("Unable to solve sudoku, exiting...")
+  else 
+    printGrid()
 }
 
-initGrid("myInput4.txt")
+initGrid()
 solve()
-printGrid()
-//println(numValidSpaces(0, '9'))
 
 
