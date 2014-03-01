@@ -8,16 +8,17 @@
 import Array._
 import scala.io.Source
 
+// Globals... 
 var rows = ofDim[Char](0,0) // The contents of all rows 
 var cols = ofDim[Char](0,0) // The contents of all columns
 var sqrs = ofDim[Char](0,0) // The contents of all squares
-val charSet = List[Char]('1', '2', '3', '4', '5', '6', '7', '8', '9')
+val charSet = List[Char]('1', '2', '3', '4', '5', '6', '7', '8', '9') // The character bank
 
 def initGrid() {
   // Get file name
   val fileName = readLine("Enter the file name to read from.\n> ").toString
   // Open file
-  var lineNum = 0
+  var lineNum = 0 // Placemark for the file line number
   try { 
     for (line <- Source.fromFile(fileName).getLines()) {
       if (lineNum == 0) {
@@ -49,6 +50,7 @@ def initGrid() {
   }
 }
 
+// Prints the grid to std out
 def printGrid() {
   for (row <- rows) { 
     for (char <- row) {
@@ -59,7 +61,7 @@ def printGrid() {
 }
 
 // Given a square, a position in the square and a character,
-// this method will check its valiity against all rules
+// this method will check its validity against all rules
 def isValid(sqrNum: Int, sqrPos: Int, char: Char) : Boolean = {
   // Get row and column position
   val (row, col) = sqrPosToRowCol(sqrNum, sqrPos)
@@ -69,32 +71,42 @@ def isValid(sqrNum: Int, sqrPos: Int, char: Char) : Boolean = {
     return true
 }
 
-// This function takes a square number and position
-// It returns the coresponding row and column for that position
+// Given a square and a position in that square this function
+// will convern it to the corresponding "row" and "column"
 def sqrPosToRowCol(sqrNum: Int, sqrPos: Int) : (Int, Int)  = {
   // Maps of row and column positions in a 3 x 3 square
   val rowOffset = Map(0 -> 0, 1 -> 0, 2 -> 0, 3 -> 1, 4 -> 1, 5 -> 1, 6 -> 2, 7 -> 2, 8 -> 2)
   val colOffset = Map(0 -> 0, 1 -> 1, 2 -> 2, 3 -> 0, 4 -> 1, 5 -> 2, 6 -> 0, 7 -> 1, 8 -> 2)
+  // Compute row
   val row = (((sqrNum/3).toInt) * 3) + rowOffset(sqrPos)
+  // Compute column
   val col = ((sqrNum % 3) * 3) + colOffset(sqrPos)
   return (row, col) 
 }
 
 // This function takes a square, starting position, and list
-// It returns the indices of the remaining blanks of a square
+// it recursively collects the positions of blank spaces in
+// the given square. It returns a list of the square postitions
+// that are blank spaces.
 def getBlankSpaces (sqrNum: Int, startPos: Int, indeces: List[Int]) : List[Int] = {
   val index = sqrs(sqrNum).indexWhere(_ == '.', startPos)
   if (startPos >= sqrs.length || index == -1) {
+    // We have reached the end of the possinle square positions
+    // return the list of spaces
     return indeces
   }
   else {
+    // Get the next space after the current index
     getBlankSpaces (sqrNum, index + 1, indeces :+ index)
   }
 }
  
+// Simply updates all arrays to include 'char' in square
+// 'sqrNum' at position 'sqrPos'
 def addToGrid(sqrNum: Int, sqrPos: Int, char: Char) { 
   // Calculate row and column
   val (row, col) = sqrPosToRowCol(sqrNum, sqrPos)
+  // Add to all arrays
   rows(row)(col) = char
   cols(col)(row) = char
   sqrs(sqrNum)(sqrPos) = char
@@ -103,23 +115,30 @@ def addToGrid(sqrNum: Int, sqrPos: Int, char: Char) {
 // This function calculates the total number of valid placements
 // of the given char in the given square. If there is only one
 // placement, it returns the position of the unique space. If 
-// there is more than one valid placement it returns -1.
+// there is more than one valid placement it returns -1 indicating
+// that there is more than one valid placement.
 def uniquePlacement(sqrNum: Int, char: Char) : Int = {
   // Get list of empty spaces in the square    
   val spaces = getBlankSpaces(sqrNum, 0, List[Int]())
   // For each space, check if char can be placed
-  var lastPosition = 0
-  var validCount = 0 
+  var lastPosition = 0 // Save of last valid position for the char
+  var validCount = 0  // Keeps track of how many valid placements there has been
   for (space <- spaces) {
     if (isValid(sqrNum, space, char)) { 
       validCount = validCount + 1
       lastPosition = space
     }
   }
-  if (validCount == 1)
+  if (validCount == 1) {
+    // There was only one valid placement
+    // Return the last known position
     return lastPosition
-  else
+  }
+  else {
+    // There was either no good position
+    // or more than one unique placement
     return -1
+  }
 }
 
 
@@ -135,6 +154,8 @@ def placeUniqueChars(sqrNum: Int) {
 }
 
 // Function returns true if puzzle is solved
+// It does this by checking all rows for blank
+// spaces. No blank spaces = true
 def isSolved() : Boolean =  {
   for (row <- rows) {
     if (row.contains('.')) { 
@@ -161,6 +182,7 @@ def solve() {
     printGrid()
 }
 
+// I dont know. This feels wrong...
 initGrid()
 solve()
 
