@@ -14,13 +14,21 @@ The input file must be 9x9. Each number is represented by that number. Each
 space is indicated with a single period. A sample input is displayed below:
   
 91.7.....
+
 .326.9.8.
+
 ..7.8.9..
+
 .86.3.17.
+
 3.......6
+
 .51.2.84.
+
 ..9.5.3..
+
 .2.3.149.
+
 .....2.61
 
 ## Notes
