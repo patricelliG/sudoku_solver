@@ -11,7 +11,7 @@ import scala.io.Source
 var rows = ofDim[Char](0,0) // The contents of all rows 
 var cols = ofDim[Char](0,0) // The contents of all columns
 var sqrs = ofDim[Char](0,0) // The contents of all squares
-val charSet = List[Char]( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
+val charSet = List[Char]('1', '2', '3', '4', '5', '6', '7', '8', '9')
 
 def initGrid(filename: String) {
   // Open file
@@ -20,7 +20,6 @@ def initGrid(filename: String) {
     if (lineNum == 0) {
       // Get size of grid to init rows, cols, sqrs 
       val gridSize = line.length
-      println("Initializing Arrays...")
       rows = ofDim[Char](gridSize, gridSize)
       cols = ofDim[Char](gridSize, gridSize)
       sqrs = ofDim[Char](gridSize, gridSize)
@@ -59,9 +58,9 @@ def isValid(sqrNum: Int, sqrPos: Int, char: Char) : Boolean = {
   // Get row and column position
   val (row, col) = sqrPosToRowCol(sqrNum, sqrPos)
   if (rows(row).contains(char) || cols(col).contains(char) || sqrs(sqrNum).contains(char))
-    false
+    return false
   else
-    true
+    return true
 }
 
 // This function takes a square number and position
@@ -88,13 +87,11 @@ def getBlankSpaces (sqrNum: Int, startPos: Int, indeces: List[Int]) : List[Int] 
 }
  
 def addToGrid(sqrNum: Int, sqrPos: Int, char: Char) { 
+//  println("addToGrid")
   // Calculate row and column
   val (row, col) = sqrPosToRowCol(sqrNum, sqrPos)
-  // Add char to rows array
   rows(row)(col) = char
-  // Add char to colums array
   cols(col)(row) = char
-  // Add to squares array
   sqrs(sqrNum)(sqrPos) = char
 }
 
@@ -102,7 +99,8 @@ def addToGrid(sqrNum: Int, sqrPos: Int, char: Char) {
 // of the given char in the given square. If there is only one
 // placement, it returns the position of the unique space. If 
 // there is more than one valid placement it returns -1.
-def numValidSpaces(sqrNum: Int, char: Char) : Int = {
+def uniquePlacement(sqrNum: Int, char: Char) : Int = {
+//  println("uniquePlacement")
   // Get list of empty spaces in the square    
   val spaces = getBlankSpaces(sqrNum, 0, List[Int]())
   // For each space, check if char can be placed
@@ -121,7 +119,41 @@ def numValidSpaces(sqrNum: Int, char: Char) : Int = {
 }
 
 
+// This function will place any chars of
+// charset that have only one possible placement
+// in the given square.
+def placeUniqueChars(sqrNum: Int) {
+//  println("placeUniqueChars")
+  for (char <- charSet) {
+    val sqrPos = uniquePlacement(sqrNum, char)  
+    if (sqrPos != -1)
+      addToGrid(sqrNum, sqrPos, char)
+  }
+}
 
-initGrid("input1.txt")
+// Function returns true if puzzle is solved
+def isSolved() : Boolean =  {
+//  println("isSolved")
+  for (row <- rows) {
+    if (row.contains('.')) { 
+      return false
+    }
+  }
+  return true
+}
+
+def solve() {
+//  println("solve")
+  while (!isSolved()) {
+    for (square <- 0 to 8){
+      placeUniqueChars(square)
+    }
+  }
+}
+
+initGrid("myInput4.txt")
+solve()
 printGrid()
-println(numValidSpaces(0, '9'))
+//println(numValidSpaces(0, '9'))
+
+
